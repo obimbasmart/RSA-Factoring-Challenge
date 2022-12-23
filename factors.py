@@ -7,11 +7,11 @@ This module aims to solve the RSA refactoring challenge
 import sys
 import ctypes
 
-path = "./lib_my_c_lib.so"    # set library path
+path = "./liball.so"    # set library path
 lib = ctypes.CDLL(path)		  # init library
 
 # set argtype to avoid overflow
-lib.smallest_divisor.argtypes = [ctypes.c_long]
+lib.smallest_divisor.argtypes = [ctypes.c_ulonglong]
 
 
 def main():
