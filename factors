@@ -1,34 +1,49 @@
-#!/usr/bin/python3
+#!/usr/bin/env bash
+# is a factors challenge
 
-"""
-This module aims to solve the RSA refactoring challenge
-"""
+check_factor()
+{
+	if [ $# -ne 3 ];
+        then
+                args=("$@")
+                count=0
+                num2=1
+                for a in ${args[*]};
+                do
+                        if [ $count -gt 1 ];
+                        then
+                                num2=$(echo $a*$num2 | bc)
+                        fi
+                        count=$((count + 1))
+                done
+        else
+                num2=$3
+        fi
 
-import sys
-import ctypes
+        num1=$2
+        num=$(echo "$1" | tr ':' '=')
 
-path = "./lib_my_c_lib.so"    # set library path
-lib = ctypes.CDLL(path)		  # init library
+        result=$(echo "if($num2 > $num1) 1 else 0" | bc)
+	        if ((result == 1)); then
+		        numcp=$num1
+		        num1=$num2
+		        num2=$numcp
+                fi
 
-# set argtype to avoid overflow
-lib.smallest_divisor.argtypes = [ctypes.c_long]
+        echo "$num$num1*$num2"
+}
 
+if [ $# -ne 1 ]
+then
+        echo 'Usage: factors <file>'
+        exit 1
+else
 
-def main():
-    """driver program"""
-    if len(sys.argv) != 2:
-        return
+        while read i
+        do
 
-    try:
-        with open(sys.argv[1], 'r') as line:
-            num = line.readline()
-            while num != '':
-                num_int = int(num)
-                divisor = lib.smallest_divisor(num_int)
-                print("{}={}*{}".format(num_int, num_int // divisor, divisor))
-                num = line.readline()
-    except FileNotFoundError:
-        return
+                result=$(factor "$i")
+                check_factor $result
 
-
-main()
+        done < "$1"
+fi
